@@ -1,7 +1,7 @@
 {
     "browser_specific_settings": {
         "gecko": {
-            "id": "drsjb80@gmail.com",
+            "id": "groupmatic@4ourse7en.com",
             "strict_min_version": "60.0"
         }
     },
@@ -10,12 +10,12 @@
     },
     "browser_action": {
         "default_icon": {
-            "16": "icons/Thematic16.png",
-            "32": "icons/Thematic32.png",
-            "64": "icons/Thematic64.png"
+            "16": "icons/Groupmatic16.PNG",
+            "32": "icons/Groupmatic32.PNG",
+            "64": "icons/Groupmatic64.PNG"
         },
         "default_popup": "src/popup.html",
-        "default_title": "Thematic"
+        "default_title": "Groupmatic"
     },
     "commands": {
         "Switch to default theme" : {
@@ -33,20 +33,23 @@
                 "default": "Alt+Shift+A"
             } 
         }
-
     },
     "default_locale": "en_US",
-    "description": "__MSG_extensionDescription__",
-    "author": "Steve Beaty",
+    "description": "Group your themes and rotate through them automatically.",
+    "author": "Riley Montague & Team 4ourSe7en",
     "developer": {
-        "name": "Steve Beaty",
-        "url": "https://github.com/drsjb80/thematic"
+        "name": "Team 4ourSe7en",
+        "url": "https://github.com/rileymontague/4ourSe7en-Thematic"
     },
     "icons": {
-        "48": "icons/Thematic48.png"
+        "16": "icons/Groupmatic16.PNG",
+        "24": "icons/Groupmatic24.PNG",
+        "32": "icons/Groupmatic32.PNG",
+        "48": "icons/Groupmatic48.PNG",
+        "64": "icons/Groupmatic64.PNG"
     },
     "manifest_version": 2,
-    "name": "__MSG_extensionName__",
+    "name": "Groupmatic",
     "options_ui": {
         "browser_style": true,
         "page": "src/options.html"
@@ -57,6 +60,6 @@
         "menus",
         "management"
     ],
-    "short_name": "__MSG_extensionShortName__",
-    "version": "7.0.7"
+    "short_name": "Groupmatic",
+    "version": "1.0.0"
 }

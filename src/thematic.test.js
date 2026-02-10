@@ -1,10 +1,8 @@
-// vim: ts=2 sw=2 expandtab
-/* global test, expect, browser, jest */
+/* test, expect, jest */
+'use strict'
 
 let logMessages = []
-if (true) {
-  console.log = function (f) { logMessages.push(f) }
-}
+console.log = function (f) { logMessages.push(f) }
 
 let menus = []
 let locals = {
@@ -19,7 +17,7 @@ let enabled = []
 const clearCalledWith = []
 const createCalledWith = []
 
-function getMem(key, memory) {
+function getMem (key, memory) {
   // console.error(key)
   // console.error(memory)
   if (typeof key === 'undefined') {
@@ -33,7 +31,7 @@ function getMem(key, memory) {
   return Promise.resolve(memory[key])
 }
 
-// can't be let, const, or var
+/* eslint-disable no-global-assign */
 browser = {
   alarms: {
     clear: function (f) {
