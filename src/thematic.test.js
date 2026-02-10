@@ -32,7 +32,7 @@ function getMem (key, memory) {
 }
 
 /* eslint-disable no-global-assign */
-browser = {
+global.browser = {
   alarms: {
     clear: function (f) {
       clearCalledWith.push(f)
@@ -303,7 +303,7 @@ test('rotate', async () => {
   await thematic.rotate()
   expect(logMessages.pop()).toBe('usertheme@usertheme.org')
   expect(logMessages.length).toBe(0)
-  expect(enabled).toStrictEqual([['usertheme@usertheme.org', true]])
+  expect(enabled).toStrictEqual([['usertheme@usertheme.org', false], ['usertheme@usertheme.org', true]])
 })
 
 let response = ''
@@ -336,7 +336,7 @@ test('switch to default command with no locals', async () => {
   locals = []
   logMessages = []
   await thematic.commands('Switch to default theme')
-  expect(logMessages.pop()).toBe("Cannot read property 'id' of undefined")
+  expect(logMessages.pop()).toBe("Cannot read properties of undefined (reading 'id')")
   expect(logMessages.length).toBe(0)
 })
 
@@ -346,7 +346,7 @@ test('switch to default command with no defaultTheme', async () => {
   }
   logMessages = []
   await thematic.commands('Switch to default theme')
-  expect(logMessages.pop()).toBe("Cannot read property 'id' of undefined")
+  expect(logMessages.pop()).toBe("Cannot read properties of undefined (reading 'id')")
   expect(logMessages.length).toBe(0)
 })
 

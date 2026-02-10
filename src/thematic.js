@@ -9,7 +9,11 @@ function getDefaultTheme (allThemes) {
   if (themes.length > 0) {
     console.log(themes[0])
     return themes[0]
-  } //
+  }
+  const namedDefault = allThemes.filter(info => info.name === 'Default')
+  if (namedDefault.length > 0) {
+    return namedDefault[0]
+  }
   for (const theme of allThemes) {
     if (isDefaultTheme(theme)) {
       console.log(theme)
@@ -105,10 +109,14 @@ async function rotate () {
 
   if (previousIndex !== -1) {
     await browser.management.setEnabled(previousId, false)
+  } else {
+    console.log('User theme index not found')
   }
 
   const currentIndex = await chooseNext(previousIndex, items)
   const currentId = items.userThemes[currentIndex].id
+
+  console.log(currentId)
 
   await browser.storage.local.set({ currentId: currentId })
   await browser.management.setEnabled(currentId, true)
@@ -181,27 +189,30 @@ async function commands (command) {
         const defaultTheme = c.defaultTheme
         await browser.storage.local.set({ currentId: defaultTheme.id })
         browser.management.setEnabled(defaultTheme.id, true)
-        jestTestAwait(stopRotation, stopRotation)
+        jestTestAwait(stopRotation, module.exports.stopRotation)
       } catch (error) {
         console.log(error.message)
       }
       break
     case 'Rotate to next theme':
-      jestTest(rotate, rotate)
+      jestTest(rotate, module.exports.rotate)
       break
     case 'Toggle autoswitching':
       try {
         const c = await browser.storage.sync.get('auto')
         const auto = c.auto
         if (auto) {
-          jestTestAwait(stopRotation, stopRotation)
+          jestTestAwait(stopRotation, module.exports.stopRotation)
         } else {
-          jestTestAwait(startRotation, startRotation)
+          jestTestAwait(startRotation, module.exports.startRotation)
         }
         await browser.storage.sync.set({ auto: !auto })
       } catch (error) {
         console.log(error.message)
       }
+      break
+    default:
+      console.log('bad command not recognized')
       break
   }
 }
