@@ -9,8 +9,7 @@ function getDefaultTheme (allThemes) {
   if (themes.length > 0) {
     console.log(themes[0])
     return themes[0]
-  } // <--- THIS BRACE FIXES THE PARSING ERROR
-
+  } //
   for (const theme of allThemes) {
     if (isDefaultTheme(theme)) {
       console.log(theme)
