@@ -2,7 +2,7 @@
 'use strict'
 
 // Proof of IDE, Riley Montague
-// Groupmaticjes
+// Groupmatic
 
 function getDefaultTheme (allThemes) {
   const themes = allThemes.filter(info => info.id === 'default-theme@mozilla.org')
