@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Theme Manager</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="header-left" id="add-group-btn" title="Create New Group">
+        <span class="icon-plus">+</span>
+        <span class="header-title">Groups</span>
+      </div>
+
+      <div class="header-right">
+        <div class="icon-btn" id="store-btn" title="Firefox Theme Store">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path
+              d="M2 3L5 14L12 21L19 14L22 3L15 8L9 8Z M5 14L12 16.5L19 14 M9 11L9 11 M15 11L15 11">
+            </path>
+          </svg>
+        </div>
+        <div class="icon-btn" id="global-upload-btn" title="Upload Image to Gallery">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <circle cx="8.5" cy="8.5" r="1.5"></circle>
+            <polyline points="21 15 16 10 5 21"></polyline>
+          </svg>
+        </div>
+        <div class="icon-btn" id="dark-mode-toggle" title="Toggle UI Dark Mode">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </div>
+        <div class="icon-btn" id="rotate-toggle" title="Rotate themes on a timer">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div id="group-list" class="group-list"></div>
+  </div>
+
+  <div id="context-menu" class="context-menu hidden">
+    <div id="ctx-rename">Rename</div>
+    <div id="ctx-delete" class="danger">Delete</div>
+    <div id="ctx-uninstall" class="danger"
+      style="display:none; border-top:1px solid #ddd">Uninstall Theme</div>
+    <div id="ctx-manage-sys" style="display:none;">Open in Manager</div>
+  </div>
+
+  <input type="file" id="theme-uploader" accept="image/*" style="display: none;" />
+
+  <footer id="bug-footer" title="Report a bug">
+    <div class="icon-btn" id="report-bug-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path
+          d="M12 9v4m0 4h.01M10.29 3.86l-7.09 12.28A1 1 0 004 18h16a1 1 0 00.86-1.86L13.77 3.86a1 1 0 00-1.74 0z" />
+      </svg>
+    </div>
+    <span>Report Bug</span>
+  </footer>
+
+  <div id="bug-modal" style="display: none;">
+    <div class="modal-content">
+      <h3>Report an Issue</h3>
+      <label>Type of Issue</label>
+      <select id="bug-type">
+        <option value="Bug">Bug / Error</option>
+        <option value="Feature Request">Feature Request</option>
+        <option value="Theme Issue">Theme Application Issue</option>
+        <option value="Other">Other</option>
+      </select>
+
+      <label>Severity</label>
+      <select id="bug-severity">
+        <option value="Low">Low - Annoying</option>
+        <option value="Medium">Medium - Core feature broken</option>
+        <option value="High">High - Extension crashes</option>
+      </select>
+
+      <label>Description</label>
+      <textarea id="bug-desc" placeholder="What happened?"></textarea>
+
+      <label>Steps to Reproduce</label>
+      <textarea id="bug-steps" placeholder="1. Clicked this...&#10;2. Expected that..."></textarea>
+
+      <div class="bug-actions">
+        <button id="cancel-bug-btn" class="btn-cancel">Cancel</button>
+        <button id="submit-bug-btn" class="btn-submit">Submit Report</button>
+      </div>
+    </div>
+  </div>
+<div id="color-modal" style="display: none;">
+    <div class="modal-content modal-large">
+      <h3>Create Advanced Theme</h3>
+      
+      <div class="input-group">
+        <input type="text" id="color-name" placeholder="Theme Name (e.g., Synthwave)">
+      </div>
+
+      <div class="theme-type-tabs">
+        <button id="tab-solid" class="tab-btn active">Solid Color</button>
+        <button id="tab-gradient" class="tab-btn">Gradient Image</button>
+      </div>
+
+      <div class="color-targets" id="color-targets" style="display: none;">
+        <button id="target-c1" class="target-btn active">Color 1: <span id="label-c1">#0060DF</span></button>
+        <button id="target-c2" class="target-btn">Color 2: <span id="label-c2">#8000FF</span></button>
+      </div>
+
+      <div class="slider-group">
+        <div class="slider-row">
+          <label>Red</label><input type="range" id="slider-r" min="0" max="255" value="0">
+        </div>
+        <div class="slider-row">
+          <label>Green</label><input type="range" id="slider-g" min="0" max="255" value="96">
+        </div>
+        <div class="slider-row">
+          <label>Blue</label><input type="range" id="slider-b" min="0" max="255" value="223">
+        </div>
+        <div class="slider-row separator"></div>
+        <div class="slider-row">
+          <label>Dark/Light</label><input type="range" id="slider-luma" min="-50" max="50" value="0">
+        </div>
+        <div class="slider-row" id="row-angle" style="display: none;">
+          <label>Angle</label><input type="range" id="slider-angle" min="0" max="360" value="90">
+        </div>
+      </div>
+
+      <div class="preview-section">
+        <div id="color-preview-box" class="color-preview-box"></div>
+      </div>
+
+      <div class="bug-actions">
+        <button id="cancel-color-btn" class="btn-cancel">Cancel</button>
+        <button id="save-color-btn" class="btn-submit">Save Theme</button>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,687 @@
+:root {
+    --bg-color: #ffffff;
+    --bg-hover: #f0f0f4;
+    --text-primary: #15141a;
+    --text-secondary: #5b5b66;
+    --border-color: #ededf0;
+    --accent-color: #0060df;
+    --accent-hover: #003eaa;
+    --danger-color: #d70022;
+    --font-stack: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+}
+/* FIX: Prevents "double vision" text highlighting during drag */
+body {
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+}
+
+/* Restores selection for your bug reporting inputs */
+input, textarea {
+    user-select: auto;
+    -moz-user-select: auto;
+    -webkit-user-select: auto;
+}
+
+.is-dragging {
+    opacity: 0.4;
+    background-color: var(--bg-hover) !important;
+}
+
+.drag-handle {
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+}
+.drag-handle:active {
+    cursor: grabbing;
+}
+/* Dark Mode Variables */
+[data-theme="dark"] {
+    --bg-color: #1c1b22;
+    --bg-hover: #2b2a33;
+    --text-primary: #f9f9fb;
+    --text-secondary: #cfcfd8;
+    --border-color: #3e3b46;
+    --accent-color: #0df; /* Brighter blue for dark mode */
+}
+
+* { box-sizing: border-box; }
+
+body {
+    width: 400px; /* Comfortable width */
+    min-height: 415px;
+    margin: 0;
+    font-family: var(--font-stack);
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Header */
+.header {
+    background-color: var(--bg-color);
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    user-select: none;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: var(--accent-color);
+    font-weight: 600;
+}
+.header-left:hover { opacity: 0.8; }
+.header-title { font-size: 14px; letter-spacing: 0.5px; }
+.icon-plus { font-size: 20px; margin-right: 6px; line-height: 1; }
+
+.header-right { display: flex; gap: 12px; }
+
+.icon-btn {
+    cursor: pointer;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    border-radius: 4px;
+    transition: background 0.1s;
+}
+.icon-btn:hover { background-color: var(--bg-hover); color: var(--text-primary); }
+
+/* List */
+.group-list { width: 100%; margin: 0; padding: 0; }
+
+.group-item {
+    padding: 10px 16px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-color);
+    cursor: default;
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.1s;
+}
+.group-item:hover { background-color: var(--bg-hover); }
+
+.group-name {
+    flex-grow: 1;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: grab;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Add Button inside Group */
+/* Update your group controls and add button CSS */
+.group-controls {
+    display: flex;
+    align-items: center;
+    gap: 2px; /* This packs the icons tightly together */
+}
+
+.add-theme-btn {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-weight: bold; font-size: 16px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.add-theme-btn:hover { 
+    background-color: var(--border-color); 
+    color: var(--accent-color); 
+}
+/* Dropdown Menu */
+.theme-nested-menu {
+    display: none;
+    position: absolute;
+    top: 100%; left: 0; width: 100%;
+    background: var(--bg-color);
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 100;
+    padding: 4px 0;
+}
+.group-item:hover .theme-nested-menu { display: block; }
+
+.theme-option {
+    padding: 8px 30px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex; align-items: center;
+    color: var(--text-primary);
+}
+.theme-option:hover { background-color: var(--accent-color); color: #fff; }
+
+.swatch {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 1px solid rgba(128,128,128,0.2);
+    flex-shrink: 0;
+}
+
+#bug-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  text-align: center;
+  font-size: 12px;
+  color: #ccc;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+#bug-footer:hover {
+  color: #ffcc00;
+}
+
+#bug-footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Context Menu */
+.context-menu {
+    position: absolute;
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+    border-radius: 4px;
+    z-index: 1000;
+    min-width: 120px;
+}
+.hidden { display: none; }
+.context-menu div { padding: 8px 12px; cursor: pointer; font-size: 12px; }
+.context-menu div:hover { background: var(--bg-hover); }
+.context-menu .danger { color: var(--danger-color); }
+/* [Existing CSS...] - Add this to the bottom */
+
+/* ROTATION / SELECTION MODE STYLES */
+
+/* When selection mode is active, the container pulsates slightly or changes border */
+body.selection-mode .group-list {
+    border: 2px solid var(--accent-color);
+    border-radius: 8px;
+    margin: 5px;
+    width: auto;
+}
+
+/* Dim items that are NOT selected */
+body.selection-mode .theme-option {
+    opacity: 0.5;
+    pointer-events: all; /* Ensure click events work */
+}
+
+/* Highlight items that ARE selected */
+body.selection-mode .theme-option.selected {
+    opacity: 1;
+    background-color: rgba(0, 96, 223, 0.1);
+    border-left: 4px solid var(--accent-color);
+}
+
+/* The Toggle Button Activity State */
+#rotate-toggle.active {
+    color: var(--accent-color);
+    fill: rgba(0, 96, 223, 0.1);
+}
+
+/* Badge for items in rotation (visible in normal mode) */
+.rotation-badge {
+    margin-left: auto;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background-color: var(--accent-color);
+    display: none;
+}
+.in-rotation .rotation-badge { display: block; }
+
+/* [Existing CSS...] */
+
+/* HOVER CONTROLS */
+.group-controls {
+    display: flex;
+    gap: 4px;
+}
+
+/* The Cog (Manage) Button - Default Hidden */
+.manage-group-btn {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    opacity: 0; /* Invisible by default */
+    transition: opacity 0.2s;
+}
+
+/* Show on Group Hover */
+.group-item:hover .manage-group-btn {
+    opacity: 1;
+}
+.manage-group-btn:hover { background-color: var(--border-color); color: var(--text-primary); }
+
+/* MANAGEMENT MODE STYLES */
+.group-item.managing .manage-group-btn {
+    opacity: 1;
+    color: var(--accent-color); /* Active state */
+    background-color: rgba(0, 96, 223, 0.1);
+}
+
+/* Delete Button on Themes (Only visible in managing mode) */
+.theme-delete-btn {
+    margin-left: auto;
+    width: 20px; height: 20px;
+    display: none; /* Hidden normally */
+    align-items: center; justify-content: center;
+    border-radius: 50%;
+    color: var(--danger-color);
+    font-weight: bold;
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+}
+.theme-delete-btn:hover { background-color: rgba(215, 0, 34, 0.1); }
+
+/* Show delete buttons when parent group is in 'managing' state */
+.group-item.managing .theme-delete-btn {
+    display: flex;
+}
+
+/* Hide the normal badge or selection state while managing to reduce clutter */
+.group-item.managing .rotation-badge { display: none; }
+
+/* ... [Existing CSS] ... */
+
+/* CONFIRMATION OVERLAY */
+#confirm-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+}
+
+#confirm-overlay h3 { margin: 0 0 10px; color: #fff; font-size: 16px; }
+#confirm-overlay p { margin: 0 0 20px; color: #ccc; font-size: 13px; line-height: 1.4; }
+
+.confirm-actions { display: flex; gap: 10px; }
+
+.confirm-btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 13whypx;
+    font-weight: 600;
+}
+
+#bug-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 0;
+  color: #ccc;
+  cursor: pointer;
+  font-size: 12px;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+#bug-footer:hover {
+  color: #fff;
+}
+
+#bug-footer svg {
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+#bug-footer:hover svg {
+  opacity: 1;
+}
+
+
+.btn-cancel { background: #38383d; color: #fff; }
+.btn-cancel:hover { background: #4a4a4f; }
+
+.btn-danger { background: #d70022; color: #fff; }
+.btn-danger:hover { background: #a4001a; }
+
+/* BUG REPORT MODAL */
+#bug-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 3000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+#bug-modal .modal-content {
+    background: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    padding: 16px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+#bug-modal h3 {
+    margin: 0 0 8px 0;
+    font-size: 15px;
+    color: var(--text-primary);
+}
+
+#bug-modal label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    margin-top: 4px;
+}
+
+#bug-modal select, #bug-modal textarea {
+    width: 100%;
+    background: var(--bg-hover);
+    color: var(--text-primary);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 6px;
+    font-family: var(--font-stack);
+    font-size: 12px;
+}
+
+#bug-modal textarea {
+    resize: none;
+    height: 60px;
+}
+
+.bug-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    justify-content: flex-end;
+}
+
+.bug-actions button {
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.btn-submit {
+    background: var(--accent-color);
+    color: #fff;
+}
+.btn-submit:hover {
+    background: var(--accent-hover);
+}
+
+/* Quick Rename Button */
+.rename-group-btn {
+    width: 24px; height: 24px;
+    border-radius: 4px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--text-secondary);
+    background-color: transparent;
+    opacity: 0; 
+    transition: opacity 0.2s, background-color 0.2s, color 0.2s;
+}
+
+.group-item:hover .rename-group-btn {
+    opacity: 1;
+}
+
+.rename-group-btn:hover { 
+    background-color: var(--border-color); 
+    color: var(--text-primary); 
+}
+
+/* LIFT AND STICK STYLES */
+.lift-ghost {
+    position: fixed;
+    pointer-events: none; /* Allows the mouse to click through it */
+    z-index: 9999;
+    background: var(--accent-color);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.95;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+}
+
+.drop-target, .drop-target-group {
+    border-top: 2px solid var(--accent-color) !important;
+    background-color: rgba(0, 96, 223, 0.05);
+}
+
+body.is-lifting, body.is-lifting * {
+    cursor: crosshair !important;
+    user-select: none !important;
+}
+
+.drag-handle {
+    cursor: pointer; /* Changed to pointer since it's now a click-to-lift */
+    display: flex;
+    align-items: center;
+    color: var(--text-secondary);
+}
+.drag-handle:hover {
+    color: var(--text-primary);
+}
+
+/* Force the Plus Button to ALWAYS remain visible */
+.add-theme-btn {
+    opacity: 1 !important;
+}
+
+/* Force the nested menu to stay expanded statically in management mode */
+.group-item.managing .theme-nested-menu {
+    display: block !important;
+}
+
+/* Mimic the Native Firefox Prompt Window */
+#color-modal {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.3); /* Subtle dimming, like native */
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#color-modal .modal-large {
+    background: #2b2a33; /* Firefox native dark modal background */
+    border: 1px solid #3e3b46;
+    border-radius: 8px;
+    padding: 20px;
+    width: 340px; /* Compact, like the native prompt */
+    box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: #f9f9fb;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+#color-modal h3 {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+}
+
+/* Mimic the globe icon from the Firefox prompt */
+#color-modal h3::before {
+    content: "🌐";
+    font-size: 16px;
+    filter: grayscale(1) brightness(2);
+}
+
+.input-group label { margin-bottom: 6px; display: block; font-size: 12px; }
+
+#color-modal input[type="text"] {
+    width: 100%;
+    background: #1c1b22;
+    color: #f9f9fb;
+    border: 1px solid #00ddff; /* Cyan focus ring from your screenshot */
+    border-radius: 4px;
+    padding: 8px;
+    font-size: 13px;
+    outline: none;
+    box-shadow: 0 0 0 1px rgba(0, 221, 255, 0.3);
+}
+
+/* Compact Sliders */
+.slider-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.slider-row { display: flex; align-items: center; gap: 8px; }
+.slider-row label { width: 65px; margin: 0; font-size: 10px; text-transform: uppercase; color: #cfcfd8; }
+.slider-row input[type="range"] { flex-grow: 1; height: 4px; background: #42414d; border-radius: 2px; }
+
+#slider-r { background: linear-gradient(to right, #000000, #ff0000) !important; }
+#slider-g { background: linear-gradient(to right, #000000, #00ff00) !important; }
+#slider-b { background: linear-gradient(to right, #000000, #0000ff) !important; }
+
+/* Preview & Hex Row */
+.preview-section {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 4px;
+}
+
+.color-preview-box {
+    flex-grow: 1;
+    height: 36px;
+    border-radius: 4px;
+    background-color: #0060df;
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.hex-readout { width: 85px; }
+.hex-readout input { text-align: center; font-family: monospace; padding: 6px !important; }
+
+/* Buttons mimicking the screenshot */
+.bug-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.btn-cancel {
+    background: #42414d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+.btn-cancel:hover { background: #52525e; }
+
+#save-color-btn {
+    background: #50e3c2; /* Cyan from screenshot */
+    color: #15141a;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+}
+#save-color-btn:hover { background: #3ec8a8; }
+/* Advanced Modal Overrides */
+.theme-type-tabs {
+    display: flex;
+    background: #1c1b22;
+    border-radius: 6px;
+    padding: 2px;
+    margin-bottom: 4px;
+}
+.tab-btn {
+    flex: 1;
+    background: transparent;
+    color: #cfcfd8;
+    border: none;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    font-weight: 600;
+}
+.tab-btn.active { background: #42414d; color: #fff; }
+
+.color-targets {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+.target-btn {
+    flex: 1;
+    background: #1c1b22;
+    border: 1px solid #3e3b46;
+    color: #cfcfd8;
+    padding: 6px;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+    font-family: monospace;
+}
+.target-btn.active {
+    border-color: #00ddff;
+    color: #fff;
+    box-shadow: 0 0 0 1px rgba(0, 221, 255, 0.3);
+}
+
+.slider-row.separator {
+    height: 1px;
+    background: rgba(255,255,255,0.1);
+    margin: 4px 0;
+}
+
+#slider-luma { background: linear-gradient(to right, #000, #fff) !important; }
+#slider-angle { background: linear-gradient(to right, #cfcfd8, #cfcfd8) !important; }

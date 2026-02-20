@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "Theme Grouper",
+  "version": "1.2",
+  "description": "Group, manage, and rotate themes.",
+  "permissions": [
+    "theme",
+    "storage",
+    "contextMenus",
+    "management",
+    "alarms"
+  ],
+  "host_permissions": [
+    "https://discord.com/api/webhooks/1473149576486846687/ujdxZv8Jaei5qNXiNkzEStWkxFuZcu_qgY-KPwKeqiZGNP2Y4LwSvnAVOwwHHD_thAtU"
+  ],
+
+  "background": {
+    "scripts": ["background.js"]
+  },
+  "icons": {
+    "16": "Icons/Groupmatic16.PNG",
+    "24": "Icons/Groupmatic24.PNG",
+    "32": "Icons/Groupmatic32.PNG",
+    "48": "Icons/Groupmatic48.PNG",
+    "64": "Icons/Groupmatic64.PNG"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "theme-grouper@example.com",
+      "strict_min_version": "109.0"
+    }
+  }
+}
