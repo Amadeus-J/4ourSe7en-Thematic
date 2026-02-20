@@ -1,9 +1,6 @@
 /* global browser */
 'use strict'
 
-// Proof of IDE, Riley Montague
-// Groupmatic
-
 function getDefaultTheme (allThemes) {
   const themes = allThemes.filter(info => info.id === 'default-theme@mozilla.org')
   if (themes.length > 0) {
