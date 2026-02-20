@@ -1,40 +1,16 @@
 /* global browser */
-// vim: ts=2 sw=2 expandtab
-
 'use strict'
 
-if (typeof process === 'undefined') {
-  var module = {}
-}
-
-module.exports = {
-  isDefaultTheme,
-  chooseNext,
-  getCurrentId,
-  getDefaultTheme,
-  buildToolsMenuItem,
-  buildThemes,
-  stopRotation,
-  startRotation,
-  rotate,
-  handleMessage,
-  commands
-}
-
 function getDefaultTheme (allThemes) {
-  let themes = allThemes.filter(info => info.name === 'Default')
+  const themes = allThemes.filter(info => info.id === 'default-theme@mozilla.org')
   if (themes.length > 0) {
     console.log(themes[0])
     return themes[0]
   }
-
-  themes = allThemes.filter(info => info.id === 'default-theme@mozilla.org')
-  if (themes.length > 0) {
-    console.log(themes[0])
-    return themes[0]
+  const namedDefault = allThemes.filter(info => info.name === 'Default')
+  if (namedDefault.length > 0) {
+    return namedDefault[0]
   }
-
-  // grab the first
   for (const theme of allThemes) {
     if (isDefaultTheme(theme)) {
       console.log(theme)
@@ -43,11 +19,8 @@ function getDefaultTheme (allThemes) {
   }
   console.log('No default theme found!')
 }
-
 function isDefaultTheme (theme) {
   return [
-    'firefox-compact-dark@mozilla.org@personas.mozilla.org',
-    'firefox-compact-light@mozilla.org@personas.mozilla.org',
     'firefox-compact-dark@mozilla.org',
     'firefox-compact-light@mozilla.org',
     'default-theme@mozilla.org',
@@ -75,7 +48,6 @@ function getCurrentId (c, userThemes, defaultTheme) {
 async function buildThemes () {
   const allExtensions = await browser.management.getAll()
   const allThemes = allExtensions.filter(info => info.type === 'theme')
-  // console.log(allThemes)
 
   const c = await browser.storage.local.get('currentId')
   const defaultTheme = getDefaultTheme(allThemes)
@@ -97,21 +69,11 @@ function isMozillaTheme (theme) {
   return theme.id.endsWith('mozilla.org')
 }
 
-// https://stackoverflow.com/questions/49432579/await-is-only-valid-in-async-function
-// bleah
 async function buildThemesHelper () {
   await buildThemes()
 }
 
 buildThemesHelper()
-
-/*
-async function asyncHelper(fn) {
-  await fn()
-}
-
-asyncHelper(buildThemes)
-*/
 
 async function chooseNext (currentIndex, items) {
   const pref = await browser.storage.sync.get('random')
@@ -139,20 +101,22 @@ async function rotate () {
     return
   }
 
-  let currentId = items.currentId
-  let currentIndex = items.userThemes.findIndex((t) => t.id === currentId)
+  const previousId = items.currentId
+  const previousIndex = items.userThemes.findIndex((t) => t.id === previousId)
 
-  if (currentIndex === -1) {
-    // this will get resolved below as 1 will be added to this :/
+  if (previousIndex !== -1) {
+    await browser.management.setEnabled(previousId, false)
+  } else {
     console.log('User theme index not found')
   }
 
-  currentIndex = await chooseNext(currentIndex, items)
-  currentId = items.userThemes[currentIndex].id
+  const currentIndex = await chooseNext(previousIndex, items)
+  const currentId = items.userThemes[currentIndex].id
+
   console.log(currentId)
 
   await browser.storage.local.set({ currentId: currentId })
-  browser.management.setEnabled(currentId, true)
+  await browser.management.setEnabled(currentId, true)
 }
 
 browser.alarms.onAlarm.addListener(rotate)
@@ -181,7 +145,6 @@ browser.storage.sync.get('auto').then((pref) => {
 })
 
 function handleMessage (request, sender, sendResponse) {
-  console.log('Message from the popup or options script: ' + request.message)
   switch (request.message) {
     case 'Start rotation':
       startRotation().catch((err) => { console.log(err) })
@@ -192,7 +155,6 @@ function handleMessage (request, sender, sendResponse) {
       sendResponse({ response: 'OK' })
       break
     default:
-      console.log('Unknown message received')
       sendResponse({ response: 'Not OK' })
       break
   }
@@ -200,8 +162,6 @@ function handleMessage (request, sender, sendResponse) {
 
 browser.runtime.onMessage.addListener(handleMessage)
 
-// allow Jest's mocking to occur
-// https://stackoverflow.com/questions/25649097/nodejs-override-a-function-in-a-module
 function jestTest (fn, testfn) {
   if (typeof process === 'undefined') {
     fn()
@@ -219,7 +179,6 @@ async function jestTestAwait (fn, testfn) {
 }
 
 async function commands (command) {
-  // console.log(command)
   switch (command) {
     case 'Switch to default theme':
       try {
@@ -250,7 +209,7 @@ async function commands (command) {
       }
       break
     default:
-      console.log(`${command} not recognized`)
+      console.log('bad command not recognized')
       break
   }
 }
@@ -272,10 +231,7 @@ function buildToolsMenuItem (theme) {
 
 async function buildToolsMenu (themes) {
   const info = await browser.runtime.getBrowserInfo()
-
-  if (info.name === 'Thunderbird') {
-    return
-  }
+  if (info.name === 'Thunderbird') return
 
   await browser.menus.removeAll()
 
@@ -283,11 +239,7 @@ async function buildToolsMenu (themes) {
     for (const theme of themes.userThemes) {
       buildToolsMenuItem(theme)
     }
-
-    browser.menus.create({
-      type: 'separator',
-      contexts: ['tools_menu']
-    })
+    browser.menus.create({ type: 'separator', contexts: ['tools_menu'] })
   }
 
   for (const theme of themes.defaultThemes) {
@@ -300,13 +252,33 @@ function extensionInstalled (info) {
     buildThemesHelper()
   }
 }
+
 browser.management.onInstalled.addListener(extensionInstalled)
 browser.management.onUninstalled.addListener(extensionInstalled)
 
 browser.menus.onClicked.addListener((info) => {
-  console.log(info)
   const currentId = info.menuItemId
   browser.storage.local.set({ currentId: currentId }).then(() => {
     browser.management.setEnabled(currentId, true)
   }).catch((err) => { console.log(err) })
 })
+
+/* eslint-disable no-use-before-define */
+const groupmatic = {
+  isDefaultTheme,
+  chooseNext,
+  getCurrentId,
+  getDefaultTheme,
+  buildToolsMenuItem,
+  buildThemes,
+  stopRotation,
+  startRotation,
+  rotate,
+  handleMessage,
+  commands
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = groupmatic
+}
+/* eslint-enable no-use-before-define */
