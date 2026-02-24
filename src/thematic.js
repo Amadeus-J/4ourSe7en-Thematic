@@ -264,7 +264,7 @@ async function commands (command) {
   }
 }
 
-async function commandsHelper (command) {.
+async function commandsHelper (command) {
   await commands(command)
 }
 
