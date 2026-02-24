@@ -36,10 +36,10 @@
     },
     "default_locale": "en_US",
     "description": "Group your themes and rotate through them automatically.",
-    "author": "Riley Montague & Team 4ourSe7en",
+    "author": "Team 4ourSe7en",
     "developer": {
         "name": "Team 4ourSe7en",
-        "url": "https://github.com/rileymontague/4ourSe7en-Thematic"
+        "url": ""
     },
     "icons": {
         "16": "icons/Groupmatic16.PNG",
