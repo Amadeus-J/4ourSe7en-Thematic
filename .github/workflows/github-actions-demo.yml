@@ -1,8 +1,8 @@
-name: GitHub Actions Demo
+name: CI/CD Pipeline
 run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
 on: [push]
 jobs:
-  Explore-GitHub-Actions:
+  Run-Unit-Tests:
     runs-on: ubuntu-latest
     steps:
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
@@ -16,6 +16,5 @@ jobs:
         run: |
           ls ${{ github.workspace }}
       - run: echo "🍏 This job's status is ${{ job.status }}."
-      - uses: actions/checkout@v1
       - name: Run Jest
         uses: stefanoeb/jest-action@1.0.3
