@@ -4,6 +4,19 @@
  */
 
 module.exports = {
+  coverageThreshold:{
+    global:{
+      statements: 75,
+      branches: 60,
+      functions: 70,
+      lines: 75
+    }
+  },
+
+
+
+
+
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
