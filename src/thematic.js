@@ -1,6 +1,16 @@
+/**
+ * @module Thematic
+ * @description Handles backend logic for themes (switching, defaults, etc.)
+ */
 /* global browser */
 'use strict'
 
+/**
+ * Takes in an array of all themes installed.
+ * Gets a default Mozilla. Logs to console if no default theme found.
+ * @param {Array<Object>} allThemes - the list of all installed themes
+ * @returns {Object} The default theme of the user
+ */
 function getDefaultTheme (allThemes) {
   const themes = allThemes.filter(info => info.id === 'default-theme@mozilla.org')
   if (themes.length > 0) {
@@ -19,6 +29,12 @@ function getDefaultTheme (allThemes) {
   }
   console.log('No default theme found!')
 }
+
+/**
+ * Determines if a given theme is a built-in Mozilla or Firefox theme.
+ * @param {Object} theme - The theme object to check.
+ * @returns {boolean} True if it is a default theme, false otherwise.
+ */
 function isDefaultTheme (theme) {
   return [
     'firefox-compact-dark@mozilla.org',
@@ -31,6 +47,13 @@ function isDefaultTheme (theme) {
   ].includes(theme.id)
 }
 
+/**
+ * Returns the ID of current theme
+ * @param {Object} c User's current theme id, assuming it exists
+ * @param {Array<Object>} userThemes Array of non-default, user-added themes
+ * @param {Object} defaultTheme Default Mozilla/Firefox theme
+ * @returns {string} currentId
+ */
 function getCurrentId (c, userThemes, defaultTheme) {
   if (Object.keys(c).length !== 0) {
     return c.currentId
@@ -45,6 +68,10 @@ function getCurrentId (c, userThemes, defaultTheme) {
   return defaultTheme.id
 }
 
+/**
+ * Accesses all installed themes and organizes them categorically.
+ * @returns {Promise<void>}
+ */
 async function buildThemes () {
   const allExtensions = await browser.management.getAll()
   const allThemes = allExtensions.filter(info => info.type === 'theme')
@@ -65,6 +92,11 @@ async function buildThemes () {
   buildToolsMenu(themes)
 }
 
+/**
+ * Determines if a theme is a theme from Mozilla.
+ * @param {Object} theme Theme to be tested.
+ * @returns {Boolean} True if Mozilla theme, false if not a Mozilla theme.
+ */
 function isMozillaTheme (theme) {
   return theme.id.endsWith('mozilla.org')
 }
@@ -75,6 +107,12 @@ async function buildThemesHelper () {
 
 buildThemesHelper()
 
+/**
+ * Calculates the next theme index based on user preferences (random or sequential).
+ * @param {number} currentIndex - The index of the currently active theme.
+ * @param {Object} items - Object containing userThemes array.
+ * @returns {Promise<number>} The index of the next theme to enable.
+ */
 async function chooseNext (currentIndex, items) {
   const pref = await browser.storage.sync.get('random')
   if (pref.random) {
@@ -88,6 +126,10 @@ async function chooseNext (currentIndex, items) {
   return (currentIndex + 1) % items.userThemes.length
 }
 
+/**
+ * Rotates to the next theme in user's collection.
+ * @returns {Promise<void>}
+ */
 async function rotate () {
   const items = await browser.storage.local.get()
 
@@ -121,6 +163,10 @@ async function rotate () {
 
 browser.alarms.onAlarm.addListener(rotate)
 
+/**
+ * Begins the process for rotating through themes on a timer.
+ * @returns {Promise<void>}
+ */
 async function startRotation () {
   const info = await browser.runtime.getBrowserInfo()
   if (info.name !== 'Thunderbird') {
@@ -130,6 +176,10 @@ async function startRotation () {
   }
 }
 
+/**
+ * Stops the process of rotating through themes.
+ * @returns {Promise<void>}
+ */
 async function stopRotation () {
   const info = await browser.runtime.getBrowserInfo()
   if (info.name !== 'Thunderbird') {

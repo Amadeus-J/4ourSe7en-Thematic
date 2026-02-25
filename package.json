@@ -20,12 +20,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Amadeus-J/4ourSe7en-Thematic.git"
+    "url": "git+https://github.com/Team-4ourSe7en/4ourSe7en-Thematic.git"
   },
   "author": "4ourSe7en",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Amadeus-J/4ourSe7en-Thematic/issues"
+    "url": "https://github.com/Team-4ourSe7en/4ourSe7en-Thematic/issues"
   },
-  "homepage": "https://github.com/Amadeus-J/4ourSe7en-Thematic#readme"
+  "homepage": "https://github.com/Team-4ourSe7en/4ourSe7en-Thematic#readme"
 }
