@@ -77,10 +77,14 @@ global.browser = {
     }
   },
   commands: {
-    onCommand: {
-      addListener: function (f) { return undefined }
+  onCommand: {
+    listener: null,
+    addListener: function (f) {
+      this.listener = f
+      return undefined
     }
-  },
+  }
+},
   management: {
     getAll: function (f) {
       const builtins = [
@@ -100,13 +104,31 @@ global.browser = {
       // console.error([variable, value])
       enabled.push([variable, value])
     },
-    onInstalled: { addListener: function (f) { return undefined } },
-    onUninstalled: { addListener: function (f) { return undefined } }
+    onInstalled: {
+  listener: null,
+  addListener: function (f) {
+    this.listener = f
+    return undefined
+  }
+},
+onUninstalled: {
+  listener: null,
+  addListener: function (f) {
+    this.listener = f
+    return undefined
+  }
+}
   },
   menus: {
     create: function (item) { menus.push(item) },
     removeAll: function (f) { menus = []; return Promise.resolve() },
-    onClicked: { addListener: function (f) { return undefined } }
+    onClicked: {
+  listener: null,
+  addListener: function (f) {
+    this.listener = f
+    return undefined
+  }
+}
   }
 }
 
@@ -155,6 +177,23 @@ test('chooseNext', async () => {
   expect(await thematic.chooseNext(1, items)).toBe(2)
   expect(await thematic.chooseNext(2, items)).toBe(0)
 
+syncs.random = true
+const originalRandom = Math.random
+let callCount = 0
+
+try {
+  Math.random = () => {
+    callCount++
+    if (callCount === 1) return 0
+    return 0.8
+  }
+
+  expect(await thematic.chooseNext(0, items)).not.toBe(0)
+} finally {
+  Math.random = originalRandom
+}
+  
+
   /* this locks up jest for no apparent reason
   syncs.random = true
   expect(await thematic.chooseNext(0, items)).not.toBe(0)
@@ -183,12 +222,20 @@ test('getDefaultTheme', () => {
   expect(logMessages.pop()).toBe('No default theme found!')
 })
 
+test('getDefaultTheme falls back to built in theme id list', () => {
+  const customTheme = { name: 'Blue Theme', id: 'custom-theme-1' }
+  const builtInTheme = { name: 'Dark Built In', id: 'firefox-compact-dark@mozilla.org' }
+
+  expect(thematic.getDefaultTheme([customTheme, builtInTheme])).toBe(builtInTheme)
+})
 test('buildToolsMenuItem', () => {
   const expected = [{ id: 'one', type: 'normal', title: 'Theme one', contexts: ['tools_menu'] }]
   menus = []
   thematic.buildToolsMenuItem(aBunchOfThemes[0])
   expect(menus).toStrictEqual(expected)
 })
+
+
 
 test('buildThemes', () => {
   const expected = {
@@ -331,6 +378,41 @@ test('rotate to next command', async () => {
   expect(thematic.rotate).toHaveBeenCalled()
   expect(thematic.rotate.mock.calls.length).toBe(1)
 })
+test('toggle autoswitching command turns auto on', async () => {
+  const originalSyncGet = browser.storage.sync.get
+  const originalBrowserInfo = browser.runtime.getBrowserInfo
+
+  syncs.auto = false
+  browser.storage.sync.get = jest.fn().mockResolvedValue({ auto: false, minutes: 15 })
+  browser.runtime.getBrowserInfo = jest.fn().mockResolvedValue({ name: 'Thunderbird' })
+
+  await thematic.commands('Toggle autoswitching')
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(browser.storage.sync.get).toHaveBeenCalledWith('auto')
+  expect(syncs.auto).toBe(true)
+
+  browser.storage.sync.get = originalSyncGet
+  browser.runtime.getBrowserInfo = originalBrowserInfo
+})
+
+test('toggle autoswitching command turns auto off', async () => {
+  const originalSyncGet = browser.storage.sync.get
+  const originalBrowserInfo = browser.runtime.getBrowserInfo
+
+  syncs.auto = true
+  browser.storage.sync.get = jest.fn().mockResolvedValue({ auto: true })
+  browser.runtime.getBrowserInfo = jest.fn().mockResolvedValue({ name: 'Thunderbird' })
+
+  await thematic.commands('Toggle autoswitching')
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(browser.storage.sync.get).toHaveBeenCalledWith('auto')
+  expect(syncs.auto).toBe(false)
+
+  browser.storage.sync.get = originalSyncGet
+  browser.runtime.getBrowserInfo = originalBrowserInfo
+})
 
 test('switch to default command with no locals', async () => {
   locals = []
@@ -366,3 +448,124 @@ test('switch to default command good', async () => {
   expect(thematic.stopRotation).toHaveBeenCalled()
   expect(thematic.stopRotation.mock.calls.length).toBe(1)
 })
+
+
+
+test('installed theme event rebuilds themes', async () => {
+  const originalGetAll = browser.management.getAll
+
+  browser.management.getAll = jest.fn().mockResolvedValue([
+    { type: 'theme', id: 'default-theme@mozilla.org', name: 'Default', description: 'default' }
+  ])
+
+  await browser.management.onInstalled.listener({ type: 'theme' })
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(browser.management.getAll).toHaveBeenCalled()
+
+  browser.management.getAll = originalGetAll
+})
+
+test('menu click event sets current theme id and enables theme', async () => {
+  locals = {}
+  enabled = []
+
+  await browser.menus.onClicked.listener({ menuItemId: 'theme-123' })
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(locals.currentId).toBe('theme-123')
+  expect(enabled).toContainEqual(['theme-123', true])
+})
+
+test('command listener handles toggle autoswitching command', async () => {
+  const originalSyncGet = browser.storage.sync.get
+  const originalBrowserInfo = browser.runtime.getBrowserInfo
+
+  syncs.auto = false
+  browser.storage.sync.get = jest.fn().mockResolvedValue({ auto: false, minutes: 15 })
+  browser.runtime.getBrowserInfo = jest.fn().mockResolvedValue({ name: 'Thunderbird' })
+
+  await browser.commands.onCommand.listener('Toggle autoswitching')
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(syncs.auto).toBe(true)
+
+  browser.storage.sync.get = originalSyncGet
+  browser.runtime.getBrowserInfo = originalBrowserInfo
+})
+
+test('chooseNext uses random branch when random preference is enabled', async () => {
+  const originalSyncGet = browser.storage.sync.get
+  const originalRandom = Math.random
+
+  browser.storage.sync.get = jest.fn().mockResolvedValue({ random: true })
+
+  let callCount = 0
+  Math.random = () => {
+    callCount++
+    if (callCount === 1) return 0
+    return 0.8
+  }
+
+  const items = { userThemes: [1, 2, 3] }
+  const result = await thematic.chooseNext(0, items)
+
+  expect(result).not.toBe(0)
+
+  browser.storage.sync.get = originalSyncGet
+  Math.random = originalRandom
+})
+
+test('toggle autoswitching command logs error when sync get fails', async () => {
+  const originalSyncGet = browser.storage.sync.get
+
+  logMessages = []
+  browser.storage.sync.get = jest.fn().mockRejectedValue(new Error('toggle failed'))
+
+  await thematic.commands('Toggle autoswitching')
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(logMessages.pop()).toBe('toggle failed')
+
+  browser.storage.sync.get = originalSyncGet
+})
+
+test('buildThemes creates separator when user themes exist', async () => {
+  const originalGetAll = browser.management.getAll
+  const originalBrowserInfo = browser.runtime.getBrowserInfo
+
+  menus = []
+  browser.runtime.getBrowserInfo = jest.fn().mockResolvedValue({ name: 'Firefox' })
+
+  browser.management.getAll = jest.fn().mockResolvedValue([
+    { type: 'theme', id: 'default-theme@mozilla.org', name: 'Default', description: 'default' },
+    { type: 'theme', id: 'firefox-compact-dark@mozilla.org', name: 'Dark', description: 'dark' },
+    { type: 'theme', id: 'user-theme-1', name: 'User Theme 1', description: 'user theme' }
+  ])
+
+  await thematic.buildThemes()
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(menus).toContainEqual({ id: 'user-theme-1', type: 'normal', title: 'User Theme 1', contexts: ['tools_menu'] })
+  expect(menus).toContainEqual({ type: 'separator', contexts: ['tools_menu'] })
+
+  browser.management.getAll = originalGetAll
+  browser.runtime.getBrowserInfo = originalBrowserInfo
+})
+
+test('menu click event logs error when local set fails', async () => {
+  const originalLocalSet = browser.storage.local.set
+
+  logMessages = []
+  browser.storage.local.set = jest.fn().mockRejectedValue('menu click failed')
+
+  await browser.menus.onClicked.listener({ menuItemId: 'theme-999' })
+  await new Promise(resolve => setTimeout(resolve, 0))
+
+  expect(logMessages.pop()).toBe('menu click failed')
+
+  browser.storage.local.set = originalLocalSet
+})
+
+
+
