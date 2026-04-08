@@ -369,3 +369,93 @@ test('switch to default command good', async () => {
   expect(thematic.stopRotation).toHaveBeenCalled()
   expect(thematic.stopRotation.mock.calls.length).toBe(1)
 })
+
+test('getGroupedThemes', () => {
+  const userThemes = [
+    { id: 'theme1', name: 'Theme 1' },
+    { id: 'theme2', name: 'Theme 2' },
+    { id: 'theme3', name: 'Theme 3' }
+  ]
+  const groups = [
+    { name: 'Group A', themeIds: ['theme1', 'theme2'] },
+    { name: 'Group B', themeIds: ['theme3'] }
+  ]
+  
+  const result = thematic.getGroupedThemes(userThemes, groups)
+  expect(result.grouped['Group A']).toHaveLength(2)
+  expect(result.grouped['Group B']).toHaveLength(1)
+  expect(result.ungrouped).toHaveLength(0)
+})
+
+test('getGroupedThemes with ungrouped themes', () => {
+  const userThemes = [
+    { id: 'theme1', name: 'Theme 1' },
+    { id: 'theme2', name: 'Theme 2' },
+    { id: 'theme3', name: 'Theme 3' }
+  ]
+  const groups = [
+    { name: 'Group A', themeIds: ['theme1'] }
+  ]
+  
+  const result = thematic.getGroupedThemes(userThemes, groups)
+  expect(result.grouped['Group A']).toHaveLength(1)
+  expect(result.ungrouped).toHaveLength(2)
+  expect(result.ungrouped.map(t => t.id)).toContain('theme2')
+  expect(result.ungrouped.map(t => t.id)).toContain('theme3')
+})
+
+test('createGroup', () => {
+  const group = thematic.createGroup('Test Group')
+  expect(group.name).toBe('Test Group')
+  expect(group.themeIds).toEqual([])
+})
+
+test('addThemeToGroup', () => {
+  const groups = [
+    { name: 'Group A', themeIds: [] },
+    { name: 'Group B', themeIds: ['theme1'] }
+  ]
+  
+  const result1 = thematic.addThemeToGroup(groups, 'Group A', 'theme2')
+  expect(result1).toBe(true)
+  expect(groups[0].themeIds).toContain('theme2')
+  
+  const result2 = thematic.addThemeToGroup(groups, 'Group B', 'theme1')
+  expect(result2).toBe(true)
+  expect(groups[1].themeIds).toContain('theme1')
+  
+  const result3 = thematic.addThemeToGroup(groups, 'Non-existent', 'theme3')
+  expect(result3).toBe(false)
+})
+
+test('removeThemeFromGroup', () => {
+  const groups = [
+    { name: 'Group A', themeIds: ['theme1', 'theme2', 'theme3'] }
+  ]
+  
+  const result = thematic.removeThemeFromGroup(groups, 'Group A', 'theme2')
+  expect(result).toBe(true)
+  expect(groups[0].themeIds).toEqual(['theme1', 'theme3'])
+})
+
+test('deleteGroup', () => {
+  const groups = [
+    { name: 'Group A', themeIds: [] },
+    { name: 'Group B', themeIds: [] },
+    { name: 'Group C', themeIds: [] }
+  ]
+  
+  const result = thematic.deleteGroup(groups, 'Group B')
+  expect(result).toHaveLength(2)
+  expect(result.map(g => g.name)).toEqual(['Group A', 'Group C'])
+})
+
+test('getGroups and saveGroups', async () => {
+  const testGroups = [
+    { name: 'Test Group', themeIds: ['theme1'] }
+  ]
+  
+  await thematic.saveGroups(testGroups)
+  const retrieved = await thematic.getGroups()
+  expect(retrieved).toEqual(testGroups)
+})
