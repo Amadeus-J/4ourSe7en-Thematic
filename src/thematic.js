@@ -131,7 +131,7 @@ async function buildThemes () {
     ungroupedThemes: ungrouped
   }
   await browser.storage.local.set(themes)
-  buildToolsMenu(themes)
+  await buildToolsMenu(themes)
 }
 
 function isMozillaTheme (theme) {
@@ -255,22 +255,22 @@ async function commands (command) {
         const defaultTheme = c.defaultTheme
         await browser.storage.local.set({ currentId: defaultTheme.id })
         browser.management.setEnabled(defaultTheme.id, true)
-        jestTestAwait(stopRotation, stopRotation)
+        jestTestAwait(() => stopRotation(), () => module.exports.stopRotation())
       } catch (error) {
         console.log(error.message)
       }
       break
     case 'Rotate to next theme':
-      jestTest(rotate, rotate)
+      jestTest(() => rotate(), () => module.exports.rotate())
       break
     case 'Toggle autoswitching':
       try {
         const c = await browser.storage.sync.get('auto')
         const auto = c.auto
         if (auto) {
-          jestTestAwait(stopRotation, stopRotation)
+          jestTestAwait(() => stopRotation(), () => module.exports.stopRotation())
         } else {
-          jestTestAwait(startRotation, startRotation)
+          jestTestAwait(() => startRotation(), () => module.exports.startRotation())
         }
         await browser.storage.sync.set({ auto: !auto })
       } catch (error) {
