@@ -16,10 +16,23 @@ body {
 
 #popup-header {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   padding: 8px;
   border-bottom: 1px solid #ddd;
   background-color: #f0f0f0;
+}
+
+#theme-store-link {
+  font-family: sans-serif;
+  font-size: 14px;
+  color: #0066cc;
+  text-decoration: none;
+  margin-right: auto;
+}
+
+#theme-store-link:hover {
+  text-decoration: underline;
 }
 
 #add-group-btn {
