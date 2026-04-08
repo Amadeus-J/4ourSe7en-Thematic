@@ -1,27 +1,55 @@
 <!DOCTYPE html>
-<!-- localizeHtmlPage() in options.js does the localization -->
 
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
         <title>Options</title>
+        <style>
+            body { font-family: sans-serif; padding: 20px; max-width: 600px; }
+            .section { margin-bottom: 20px; padding: 15px; border: 1px solid #ccc; border-radius: 4px; }
+            .section h3 { margin-top: 0; }
+            .group-item { display: flex; align-items: center; justify-content: space-between; padding: 8px; border-bottom: 1px solid #eee; }
+            .group-item:last-child { border-bottom: none; }
+            .theme-list { margin-top: 10px; padding-left: 20px; }
+            .theme-item { display: flex; align-items: center; gap: 8px; margin: 5px 0; }
+            button { cursor: pointer; padding: 5px 10px; margin: 2px; }
+            input[type="text"] { padding: 5px; width: 150px; }
+            .hidden { display: none; }
+            label { cursor: pointer; }
+        </style>
 	</head>
 
 	<body>
-        <form>
-            <input type="checkbox" id="auto" tabindex="1">
-            <label for="auto" class="i18n" id="autolabel"></label>
-            <input type="number" id="minutes" size="4" min="1" max="999" tabindex="2">
-            <label for="minutes" class="i18n" id="minuteslabel"></label>
-            <br/>
-            <input type="checkbox" id="random" tabindex="3">
-            <label for="random" class="i18n" id="randomlabel"></label>
-            <br/>
-            <br/>
-            <button type="submit">Save</button>
-        </form>
+        <h2>Groupmatic Options</h2>
+        
+        <div class="section">
+            <h3>Theme Rotation</h3>
+            <form id="rotation-form">
+                <input type="checkbox" id="auto">
+                <label for="auto" class="i18n" id="autolabel"></label>
+                <br>
+                <input type="number" id="minutes" size="4" min="1" max="999">
+                <label for="minutes" class="i18n" id="minuteslabel"></label>
+                <br>
+                <input type="checkbox" id="random">
+                <label for="random" class="i18n" id="randomlabel"></label>
+                <br><br>
+                <button type="submit">Save</button>
+            </form>
+        </div>
 
-        <p name="i18n" id="keyboard_shortcuts"></p>
+        <div class="section">
+            <h3>Theme Groups</h3>
+            <div id="groups-container"></div>
+            <br>
+            <input type="text" id="new-group-name" placeholder="New group name">
+            <button id="add-group-btn">Add Group</button>
+        </div>
+
+        <div class="section">
+            <h3>Keyboard Shortcuts</h3>
+            <p name="i18n" id="keyboard_shortcuts"></p>
+        </div>
 
         <script src="options.js"></script>
     </body>

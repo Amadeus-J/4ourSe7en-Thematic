@@ -1,4 +1,4 @@
-.button {
+.theme-button {
   margin: 3% auto;
   padding: 4px;
   text-align: center;
@@ -6,6 +6,53 @@
   font-family: sans-serif;
 }
 
-.button:hover {
+.theme-button:hover {
   background-color: #808080;
+}
+
+.collapsible-group {
+  margin-bottom: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.collapsible-header {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  user-select: none;
+  font-family: sans-serif;
+  font-weight: bold;
+}
+
+.collapsible-header:hover {
+  background-color: #e0e0e0;
+}
+
+.collapse-arrow {
+  margin-right: 8px;
+  font-size: 10px;
+  width: 16px;
+}
+
+.collapsible-title {
+  flex-grow: 1;
+}
+
+.collapsible-count {
+  color: #666;
+  font-weight: normal;
+  font-size: 0.9em;
+}
+
+.collapsible-content {
+  padding: 4px;
+  background-color: #fafafa;
+}
+
+.collapsible-content .theme-button {
+  margin: 4px auto;
 }

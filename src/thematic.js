@@ -1,16 +1,16 @@
 /* global browser */
 'use strict'
 
+// Proof of IDE, Riley Montague
+// Groupmaticjes
+
 function getDefaultTheme (allThemes) {
   const themes = allThemes.filter(info => info.id === 'default-theme@mozilla.org')
   if (themes.length > 0) {
     console.log(themes[0])
     return themes[0]
-  }
-  const namedDefault = allThemes.filter(info => info.name === 'Default')
-  if (namedDefault.length > 0) {
-    return namedDefault[0]
-  }
+  } // <--- THIS BRACE FIXES THE PARSING ERROR
+
   for (const theme of allThemes) {
     if (isDefaultTheme(theme)) {
       console.log(theme)
@@ -45,6 +45,69 @@ function getCurrentId (c, userThemes, defaultTheme) {
   return defaultTheme.id
 }
 
+function getGroupedThemes (userThemes, groups) {
+  const grouped = {}
+  const ungrouped = []
+
+  for (const theme of userThemes) {
+    let found = false
+    for (const group of groups) {
+      if (group.themeIds && group.themeIds.includes(theme.id)) {
+        if (!grouped[group.name]) {
+          grouped[group.name] = []
+        }
+        grouped[group.name].push(theme)
+        found = true
+        break
+      }
+    }
+    if (!found) {
+      ungrouped.push(theme)
+    }
+  }
+
+  return { grouped, ungrouped }
+}
+
+function createGroup (name) {
+  return { name, themeIds: [] }
+}
+
+function addThemeToGroup (groups, groupName, themeId) {
+  for (const group of groups) {
+    if (group.name === groupName) {
+      if (!group.themeIds.includes(themeId)) {
+        group.themeIds.push(themeId)
+      }
+      return true
+    }
+  }
+  return false
+}
+
+function removeThemeFromGroup (groups, groupName, themeId) {
+  for (const group of groups) {
+    if (group.name === groupName) {
+      group.themeIds = group.themeIds.filter(id => id !== themeId)
+      return true
+    }
+  }
+  return false
+}
+
+function deleteGroup (groups, groupName) {
+  return groups.filter(g => g.name !== groupName)
+}
+
+async function getGroups () {
+  const stored = await browser.storage.local.get('themeGroups')
+  return stored.themeGroups || []
+}
+
+async function saveGroups (groups) {
+  await browser.storage.local.set({ themeGroups: groups })
+}
+
 async function buildThemes () {
   const allExtensions = await browser.management.getAll()
   const allThemes = allExtensions.filter(info => info.type === 'theme')
@@ -55,11 +118,17 @@ async function buildThemes () {
   const userThemes = allThemes.filter(theme => !isMozillaTheme(theme))
   const currentId = getCurrentId(c, userThemes, defaultTheme)
 
+  const groups = await getGroups()
+  const { grouped, ungrouped } = getGroupedThemes(userThemes, groups)
+
   const themes = {
     currentId: currentId,
     defaultTheme: defaultTheme,
     defaultThemes: defaultThemes,
-    userThemes: userThemes
+    userThemes: userThemes,
+    groups: groups,
+    groupedThemes: grouped,
+    ungroupedThemes: ungrouped
   }
   await browser.storage.local.set(themes)
   buildToolsMenu(themes)
@@ -106,14 +175,10 @@ async function rotate () {
 
   if (previousIndex !== -1) {
     await browser.management.setEnabled(previousId, false)
-  } else {
-    console.log('User theme index not found')
   }
 
   const currentIndex = await chooseNext(previousIndex, items)
   const currentId = items.userThemes[currentIndex].id
-
-  console.log(currentId)
 
   await browser.storage.local.set({ currentId: currentId })
   await browser.management.setEnabled(currentId, true)
@@ -154,6 +219,10 @@ function handleMessage (request, sender, sendResponse) {
       stopRotation().catch((err) => { console.log(err) })
       sendResponse({ response: 'OK' })
       break
+    case 'RefreshThemes':
+      buildThemesHelper()
+      sendResponse({ response: 'OK' })
+      break
     default:
       sendResponse({ response: 'Not OK' })
       break
@@ -186,30 +255,27 @@ async function commands (command) {
         const defaultTheme = c.defaultTheme
         await browser.storage.local.set({ currentId: defaultTheme.id })
         browser.management.setEnabled(defaultTheme.id, true)
-        jestTestAwait(stopRotation, module.exports.stopRotation)
+        jestTestAwait(stopRotation, stopRotation)
       } catch (error) {
         console.log(error.message)
       }
       break
     case 'Rotate to next theme':
-      jestTest(rotate, module.exports.rotate)
+      jestTest(rotate, rotate)
       break
     case 'Toggle autoswitching':
       try {
         const c = await browser.storage.sync.get('auto')
         const auto = c.auto
         if (auto) {
-          jestTestAwait(stopRotation, module.exports.stopRotation)
+          jestTestAwait(stopRotation, stopRotation)
         } else {
-          jestTestAwait(startRotation, module.exports.startRotation)
+          jestTestAwait(startRotation, startRotation)
         }
         await browser.storage.sync.set({ auto: !auto })
       } catch (error) {
         console.log(error.message)
       }
-      break
-    default:
-      console.log('bad command not recognized')
       break
   }
 }
@@ -275,7 +341,14 @@ const groupmatic = {
   startRotation,
   rotate,
   handleMessage,
-  commands
+  commands,
+  getGroups,
+  saveGroups,
+  createGroup,
+  addThemeToGroup,
+  removeThemeFromGroup,
+  deleteGroup,
+  getGroupedThemes
 }
 
 if (typeof module !== 'undefined') {
