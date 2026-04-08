@@ -225,7 +225,10 @@ test('buildThemes', () => {
         description: 'Use a colorful appearance for buttons, menus, and windows.'
       }
     ],
-    userThemes: []
+    userThemes: [],
+    groupedThemes: {},
+    groups: [],
+    ungroupedThemes: []
   }
 
   thematic.buildThemes()
