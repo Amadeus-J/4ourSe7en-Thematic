@@ -14,10 +14,12 @@
             "32": "icons/Groupmatic32.PNG",
             "64": "icons/Groupmatic64.PNG"
         },
-        "default_popup": "src/popup.html",
-        "default_title": "Groupmatic",
-        "default_width": 350,
-        "default_height": 500
+        "default_popup": {
+            "popup": "src/popup.html",
+            "default_width": 350,
+            "default_height": 500
+        },
+        "default_title": "Groupmatic"
     },
     "commands": {
         "Switch to default theme" : {
