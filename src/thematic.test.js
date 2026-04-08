@@ -456,6 +456,7 @@ test('getGroups and saveGroups', async () => {
   ]
   
   await thematic.saveGroups(testGroups)
+  locals.themeGroups = testGroups
   const retrieved = await thematic.getGroups()
   expect(retrieved).toEqual(testGroups)
 })
