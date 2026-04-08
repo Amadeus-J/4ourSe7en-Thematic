@@ -10,6 +10,29 @@
   background-color: #808080;
 }
 
+#popup-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  background-color: #f0f0f0;
+}
+
+#add-group-btn {
+  font-size: 14px;
+  font-weight: normal;
+  cursor: pointer;
+  color: #333;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: sans-serif;
+}
+
+#add-group-btn:hover {
+  background-color: #ccc;
+  color: #000;
+}
+
 .collapsible-group {
   margin-bottom: 8px;
   border: 1px solid #ddd;
@@ -55,4 +78,48 @@
 
 .collapsible-content .theme-button {
   margin: 4px auto;
+}
+
+.draggable {
+  cursor: grab;
+}
+
+.draggable:active {
+  cursor: grabbing;
+}
+
+.dragging {
+  opacity: 0.5;
+}
+
+.drop-target {
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.drop-target.drag-over {
+  border-color: #4a90d9;
+  background-color: #e8f4fc;
+}
+
+.drop-target.drag-over .collapsible-header {
+  background-color: #d0e8f8;
+}
+
+.custom-context-menu {
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+  z-index: 1000;
+  min-width: 100px;
+}
+
+.custom-context-menu .menu-item {
+  padding: 8px 16px;
+  cursor: pointer;
+  font-family: sans-serif;
+}
+
+.custom-context-menu .menu-item:hover {
+  background-color: #f0f0f0;
 }

@@ -314,8 +314,12 @@ async function buildToolsMenu (themes) {
 }
 
 function extensionInstalled (info) {
+  console.log('Theme installed/uninstalled:', info.type, info.id)
   if (info.type === 'theme') {
     buildThemesHelper()
+    browser.runtime.sendMessage({ message: 'ThemesUpdated' }).catch(err => {
+      console.log('Could not send message:', err)
+    })
   }
 }
 
