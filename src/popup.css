@@ -6,6 +6,10 @@
   font-family: sans-serif;
 }
 
+body {
+  min-width: 300px;
+}
+
 .theme-button:hover {
   background-color: #808080;
 }
