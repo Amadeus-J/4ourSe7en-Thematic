@@ -484,13 +484,24 @@ test('deleteGroup', () => {
   expect(result.map(g => g.name)).toEqual(['Group A', 'Group C'])
 })
 
-test('getGroups and saveGroups', async () => {
-  // Test that saveGroups and getGroups work (basic sanity check)
-  const testGroups = [
-    { name: 'Test Group', themeIds: ['theme1'] }
-  ]
+test('chooseNext with random enabled', async () => {
+  syncs.random = true
+  const items = { userThemes: [{ id: 't1' }, { id: 't2' }, { id: 't3' }] }
+  const index = await thematic.chooseNext(0, items)
+  expect(index).toBeDefined()
+  expect(index).toBeGreaterThanOrEqual(0)
+  expect(index).toBeLessThan(3)
+})
+
+test('handleMessage RefreshThemes', () => {
+  let response = ''
+  function receiveResponse (m) { response = m }
   
-  // Verify the functions exist and are callable
+  thematic.handleMessage({ message: 'RefreshThemes' }, {}, receiveResponse)
+  expect(response).toStrictEqual({ response: 'OK' })
+})
+
+test('getGroups and saveGroups', async () => {
   expect(typeof thematic.saveGroups).toBe('function')
   expect(typeof thematic.getGroups).toBe('function')
 })
